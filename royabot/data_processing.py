@@ -7,8 +7,14 @@ from royabot.indicators import add_natr
 def process_stock_data(input_xls_path, output_xls_path):
     pl.Config.set_tbl_cols(-1)
     fetcher = MarketDataFetcher()
-
+    filename = "daily_quotes.parquet"
+    fetcher.display_parquet_stats(filename)
+    newdays = fetcher.download_data_to_date(filename)
+    if newdays:
+        fetcher.display_parquet_stats(filename)
+        logger.info(f"Downloaded {newdays} days of data.")
     df = fetcher.get_full_dataframe("./daily_quotes.parquet")
+    latest_date = df.select(pl.max("date")).collect().to_numpy()[0, 0]
     df = df.with_columns(pl.col("code").cast(str))
     df_clean = (
         df.filter(pl.all_horizontal(pl.col(pl.Float32, pl.Float64).is_not_nan()))
@@ -29,6 +35,7 @@ def process_stock_data(input_xls_path, output_xls_path):
         how="left",
     )
     df.to_pandas().to_excel(output_xls_path, index=False)
+    return latest_date
 
 
 if __name__ == "__main__":

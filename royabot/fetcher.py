@@ -13,6 +13,7 @@ pl.Config.set_tbl_cols(-1)
 class MarketDataFetcher:
     def __init__(self):
         logger.info(f"Shioaji API logged in - {sj.__version__}")
+        self.parquet_filename = "daily_quotes.parquet"
 
     def get_daily_quote(
         self, query_date: dt.date = dt.date.today()

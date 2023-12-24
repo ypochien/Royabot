@@ -9,6 +9,7 @@ from telegram.ext import (
 
 # from telegram import InlineKeyboardMarkup, InlineKeyboardButton # 互動式按鈕
 from royabot.data_processing import process_stock_data
+from pathlib import Path
 from royabot import config
 from loguru import logger
 
@@ -34,10 +35,17 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
     upload_file: File = await update.message.document.get_file()
     filename = update.message.document.file_name
     logger.info(filename)
+    if not Path("downloads").exists():
+        Path("downloads").mkdir(parents=True, exist_ok=True)
+
     await upload_file.download_to_drive(f"downloads/{filename}")
-    process_stock_data(f"downloads/{filename}", f"downloads/out_{filename}")
+    latest_date = process_stock_data(
+        f"downloads/{filename}", f"downloads/out_{filename}"
+    )
     with open(f"downloads/out_{filename}", "rb") as f:
-        await update.message.reply_document(document=f)
+        await update.message.reply_document(
+            document=f, caption=f"資料日期: {latest_date}."
+        )
 
 
 def main() -> None:
