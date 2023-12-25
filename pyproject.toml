@@ -8,3 +8,14 @@ authors = [{name = "ypochien", email = "ypochien@gmail.com"}]
 license = {file = "LICENSE"}
 classifiers = ["License :: OSI Approved :: MIT License"]
 dynamic = ["version", "description"]
+dependencies = [
+    "loguru",
+    "polars",
+    "pandas",
+    "shioaji",
+    "pyarrow",
+    "python-telegram-bot",
+    "xlsx2csv",
+    "openpyxl"
+    # "configparser; python_version == '2.7'",
+]

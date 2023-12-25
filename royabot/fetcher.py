@@ -91,6 +91,7 @@ class MarketDataFetcher:
                 logger.info(f"Skipping weekend {current_date} Progress {progress:.2f}%")
 
             current_date += dt.timedelta(days=1)
+        self.api.logout()
         return total_days
 
     def save_to_parquet(self, df: pl.DataFrame, filename: str):
