@@ -101,6 +101,8 @@ class MarketDataFetcher:
     def append_to_parquet(
         self, df: pl.DataFrame, filename: str, overwrite: bool = True
     ):
+        if df is None:
+            return
         if df.shape[0] > 0:  # 确保DataFrame不为空
             try:
                 existing_df = pl.read_parquet(filename)
