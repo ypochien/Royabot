@@ -13,6 +13,14 @@ RoyaBot is a Telegram bot for stock market data analysis. It processes Excel fil
 - **Add new dependency**: `uv add <package-name>`
 - **Run the bot**: `uv run royabot`
 
+### Docker Commands
+- **Build image**: `docker build -t royabot .`
+- **Run with Docker**: `docker run --env-file .env -v $(pwd)/downloads:/app/downloads royabot`
+- **Run with Docker Compose**: `docker-compose up -d`
+- **Stop services**: `docker-compose down`
+- **View logs**: `docker-compose logs -f royabot`
+- **Rebuild and restart**: `docker-compose up --build -d`
+
 ### Environment Setup
 The project requires environment variables in `.env`:
 - `API_KEY`: Shioaji API key
@@ -83,6 +91,21 @@ src/royabot/
 - Bot processes one file at a time with date-based filtering
 - No formal test suite currently configured
 - Downloads stored in `downloads/` directory (auto-created)
+
+## Docker Deployment
+
+### Container Architecture
+The application is containerized with:
+- **Base Image**: Python 3.12 slim
+- **TA-Lib**: Compiled from source for technical indicators
+- **uv**: Fast Python package manager
+- **Volumes**: Persistent storage for downloads and data files
+
+### Production Deployment
+1. Ensure `.env` file contains all required environment variables
+2. Use `docker-compose up -d` for production deployment
+3. Monitor logs with `docker-compose logs -f royabot`
+4. Data persists in Docker volumes and mounted directories
 - --
 description: 解釋技術概念、架構設計或流程
 ---

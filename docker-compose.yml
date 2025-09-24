@@ -1,0 +1,27 @@
+services:
+  royabot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: royabot
+    restart: unless-stopped
+    environment:
+      - API_KEY=${API_KEY}
+      - SECRET_KEY=${SECRET_KEY}
+      - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
+    volumes:
+      # 持久化數據目錄
+      - ./downloads:/app/downloads
+      - ./data:/app/data
+      # 如果需要保存 parquet 文件
+      - royabot_data:/app
+    networks:
+      - royabot_network
+
+volumes:
+  royabot_data:
+    driver: local
+
+networks:
+  royabot_network:
+    driver: bridge

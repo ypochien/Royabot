@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+.venv/
+venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# 不需要的文件
+*.log
+*.parquet
+*.whl
+*.tar.gz
+ta-lib/
+backup.parquet
+daily_quotes.parquet
+shioaji.log
+downloads/
+
+# 開發文件
+tests/
+.pytest_cache/
+
+# 環境文件 (會在 docker-compose 中處理)
+.env.example
+.claude/
