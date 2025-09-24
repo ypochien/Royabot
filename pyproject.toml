@@ -1,7 +1,7 @@
 [project]
 name = "royabot"
 version = "0.1.0"
-description = "Add your description here"
+description = "智能股票分析 Telegram 機器人，專為台灣股市數據分析設計"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
