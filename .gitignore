@@ -76,7 +76,9 @@ Thumbs.db
 
 # Project specific
 *.log
+*.xlsx
 *.parquet
+*.whl
 downloads/
 ta-lib/
 TA_Lib-*.whl

@@ -20,6 +20,12 @@ dependencies = [
     "xlsx2csv>=0.8.3",
 ]
 
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-asyncio",
+]
+
 [project.scripts]
 royabot = "royabot:main"
 

@@ -1,3 +1,5 @@
+import asyncio
+
 from telegram import ForceReply, Update, File
 from telegram.ext import (
     Application,
@@ -7,16 +9,11 @@ from telegram.ext import (
     filters,
 )
 
-# from telegram import InlineKeyboardMarkup, InlineKeyboardButton # 互動式按鈕
 from royabot.data_processing import process_stock_data
-from pathlib import Path
 from royabot import config
 from loguru import logger
 
-
-# 处理/start命令
-def start(update, context):
-    update.message.reply_text("Hi! Please send me an Excel file.")
+ALLOWED_EXTENSIONS = {".xlsx", ".xls"}
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -28,28 +25,47 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     )
 
 
-# 处理接收到的文件
 async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user = update.message.from_user
-    logger.info(user)
-    upload_file: File = await update.message.document.get_file()
-    filename = update.message.document.file_name
-    logger.info(filename)
-    if not Path("downloads").exists():
-        Path("downloads").mkdir(parents=True, exist_ok=True)
+    """Handle uploaded document files."""
+    try:
+        user = update.message.from_user
+        logger.info(f"Received document from user: {user.id} ({user.full_name})")
 
-    await upload_file.download_to_drive(f"downloads/{filename}")
-    latest_date = process_stock_data(
-        f"downloads/{filename}", f"downloads/out_{filename}"
-    )
-    with open(f"downloads/out_{filename}", "rb") as f:
-        await update.message.reply_document(
-            document=f, caption=f"資料日期: {latest_date}."
+        filename = update.message.document.file_name
+        suffix = "." + filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
+        if suffix not in ALLOWED_EXTENSIONS:
+            await update.message.reply_text(
+                f"請上傳 Excel 檔案 (.xlsx / .xls)，目前收到: {suffix or '無副檔名'}"
+            )
+            return
+
+        # Use user_id subdirectory to avoid filename collision
+        user_dir = config.DOWNLOADS_DIR / str(user.id)
+        user_dir.mkdir(parents=True, exist_ok=True)
+        input_path = user_dir / filename
+        output_path = user_dir / f"out_{filename}"
+
+        upload_file: File = await update.message.document.get_file()
+        await upload_file.download_to_drive(str(input_path))
+
+        # Run blocking data processing in a thread to avoid blocking the event loop
+        latest_date = await asyncio.to_thread(
+            process_stock_data, str(input_path), str(output_path)
         )
+
+        with open(str(output_path), "rb") as f:
+            await update.message.reply_document(
+                document=f, caption=f"資料日期: {latest_date}."
+            )
+    except Exception as e:
+        logger.exception(f"Error processing document from user {update.message.from_user.id}")
+        await update.message.reply_text("處理文件時發生錯誤，請稍後再試。")
 
 
 def main() -> None:
     """Start the bot."""
+    config.init_polars()
+
     application = Application.builder().token(token=config.TELEGRAM_TOKEN).build()
     application.add_handler(CommandHandler("start", start))
     application.add_handler(MessageHandler(filters.Document.ALL, handle_document))
